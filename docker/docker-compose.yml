@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: ../frontend/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - my_network
+
+  app:
+    build:
+      context: ../frontend/app
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    networks:
+      - my_network
+    
+  backend:
+    build:
+      context: ../backend/java-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    networks:
+      - my_network
+    depends_on:
+      - db
+
+  ai:
+    build:
+      context: ../backend/python-service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - my_network
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: healthdb
+    networks:
+      - my_network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  db_data:
